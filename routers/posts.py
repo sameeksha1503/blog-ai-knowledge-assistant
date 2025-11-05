@@ -2,7 +2,7 @@ from fastapi import APIRouter,HTTPException
 from sqlmodel import select
 
 from ..models import Post
-from ..schema import PostCreate
+from ..schema import PostCreate,PostUpdate
 from ..database import SessionDep
 
 router=APIRouter(prefix="/posts",tags=["Posts"])
@@ -24,6 +24,20 @@ def read_post(post_id:int,session:SessionDep):
     post=session.exec(select(Post).where(Post.id==post_id)).one_or_none()
     if not post:
         raise HTTPException(status_code=404,detail="Post not found")
+    return post
+
+@router.put('/{post_id}')
+def update_post(post_id:int,updated_post:PostUpdate,session:SessionDep):
+    post=session.exec(select(Post).where(Post.id==post_id)).one_or_none()
+    if not post:
+        raise HTTPException(status_code=404,detail="Post not found")
+    if updated_post.title is not None:
+        post.title=updated_post.title
+    if updated_post.content is not None:
+        post.content=updated_post.content
+    session.add(post)
+    session.commit()
+    session.refresh(post)
     return post
 
 @router.delete('/{post_id}')

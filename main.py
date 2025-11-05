@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .database import create_db_and_tables
-from .routers import posts,comments
+from .routers import posts,comments,users
 
 app=FastAPI()
 
@@ -8,6 +8,7 @@ app=FastAPI()
 def on_startup():
     create_db_and_tables()
 
+app.include_router(users.router)
 app.include_router(posts.router)
 app.include_router(comments.router)
 
