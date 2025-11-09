@@ -6,15 +6,15 @@ class UserCreate(BaseModel):
     username:str
     password:str
 
-class UserLogin(BaseModel):
-    username:str
-    password:str
+# class UserLogin(BaseModel):
+#     username:str
+#     password:str
 
 #-------------- Post Schemas-------------
 class PostCreate(BaseModel):
     title:str
     content:str
-    author_id:int
+    # author_id:int
 
 class PostUpdate(BaseModel):
     title:Optional[str]=None
@@ -24,5 +24,5 @@ class PostUpdate(BaseModel):
 class CommentCreate(BaseModel):
     content:str
     post_id:int
-    user_id:int
+    # user_id:int
 
