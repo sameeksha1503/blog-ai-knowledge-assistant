@@ -6,8 +6,9 @@ from jose import jwt,JWTError
 pwd_context=CryptContext(schemes=["bcrypt"],deprecated="auto")
 
 oauth2_scheme=OAuth2PasswordBearer(tokenUrl="login")
-SECRET_KEY="your-secret-key"
+SECRET_KEY="secret-key"
 ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 def hash_password(password:str)->str:
     return pwd_context.hash(password)

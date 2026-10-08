@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 
 #-------------- Post Schemas-------------
 class PostCreate(BaseModel):
@@ -7,6 +6,11 @@ class PostCreate(BaseModel):
     content:str
     # author_id:int
 
+class PostRead(BaseModel):
+    id:int
+    title:str
+    content:str
+
 class PostUpdate(BaseModel):
-    title:Optional[str]=None
-    content:Optional[str]=None
+    title:str|None=None
+    content:str|None=None
