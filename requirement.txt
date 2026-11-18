@@ -20,3 +20,5 @@ langchain[google-genai]
 langgraph
 langchain-huggingface
 sentence-transformers
+
+redis

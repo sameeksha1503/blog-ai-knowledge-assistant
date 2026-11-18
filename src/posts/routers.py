@@ -1,6 +1,7 @@
+import json
 from typing import Annotated,List
-from fastapi import APIRouter,HTTPException,Depends
-from sqlmodel import select,Session
+from fastapi import APIRouter,HTTPException,Depends, Response
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -10,6 +11,7 @@ from ..comments.schemas import CommentRead
 from ..agent.tools import vector_store
 from ..database import get_db
 from ..auth import get_current_user
+from ..redis import redis_client
 
 router=APIRouter(prefix="/posts",tags=["Posts"])
 
@@ -17,11 +19,25 @@ router=APIRouter(prefix="/posts",tags=["Posts"])
 
 @router.get('/', response_model=List[PostRead])
 async def read_posts(
+    response: Response,
+    skip: int = 0,
+    limit: int = 10,
     db: AsyncSession = Depends(get_db),
     current_user_id: int = Depends(get_current_user)
     ):
+    cache_key = f"posts:skip:{skip}:limit:{limit}"
+    cached_posts = await redis_client.get(cache_key)
+    #cache hit
+    if cached_posts:
+        response.headers["X-Data-Source"] = "redis"
+        return json.loads(cached_posts)
+    #cache miss
+    posts= (await db.exec(select(Post).offset(skip).limit(limit))).all()
+    
+    posts_data = [post.model_dump(mode="json") for post in posts]
+    await redis_client.setex(cache_key, 60, json.dumps(posts_data))
+    response.headers["X-Data-Source"] = "database"
 
-    posts= (await db.exec(select(Post))).all()
     return posts
 
 #-------------------------------------------------------------------------------------------------------------
